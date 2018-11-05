@@ -1,0 +1,130 @@
+#include <stdio.h>
+
+#include <stdlib.h>
+
+
+#int main(){
+
+#    srand(time(NULL));
+
+#    int guessNum = rand() % 10 + 1;
+
+#    int userNum;
+
+#    printf("Choose num (1-9): ");
+
+#    printf("%d\n", guessNum);
+
+#    scanf("%d", &userNum);
+
+#    while(userNum != guessNum){
+
+#        printf("Wrong\n");
+
+#        scanf("%d", &userNum);
+
+#    }   
+
+#    printf("Correct! Congratulations!\n");
+
+#    return 0;
+
+#}
+
+
+
+.code16
+.globl start
+
+
+start:
+
+    movw $question, %si
+    
+call print_ques
+
+    movb $0x00,%ah
+
+    movb $0x03,%al
+
+    int $0x10
+
+
+print_ques:
+
+    lodsb
+
+    testb %al,%al
+
+    jz take_input
+
+    movb $0x0E,%ah
+
+    int $0x10
+
+    jmp print_ques
+
+
+take_input:
+
+    movb $0x05,%bl
+    int $0x16
+
+    movw $wrong, %si
+
+    cmp 0x05, %bl
+
+    jne wrong_ans
+
+    movw $correct, %si
+
+    jmp correct_ans
+
+
+wrong_ans:
+
+    lodsb
+
+    testb %al,%al
+
+    jz start
+
+    movb $0x0E,%ah
+
+    int $0x10
+
+    jmp wrong_ans
+
+
+correct_ans:
+
+	lodsb
+
+    testb %al,%al
+
+    jz done
+
+    movb $0x0E,%ah
+
+    int $0x10
+
+	jmp correct_ans
+
+
+done:
+
+    jmp done 
+
+
+question:
+
+	.string "What number am I thinking of (0-9)?\n"
+
+wrong:
+	.string "Wrong!\n"
+correct:
+	.string "Right! Congratulations"
+
+.fill 510 - (. - start), 1, 0
+.byte 0x55
+.byte 0xAA
